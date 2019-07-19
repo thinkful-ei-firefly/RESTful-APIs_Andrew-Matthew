@@ -32,14 +32,14 @@ const store = (function() {
     this.searchTerm = term;
   };
   const items = [];
+  let error = null;
   return {
     items,
     hideCheckedItems: false,
     searchTerm: "",
-
+    error,
     addItem,
     findById,
-
     findAndDelete,
     findAndUpdate,
     toggleCheckedFilter,

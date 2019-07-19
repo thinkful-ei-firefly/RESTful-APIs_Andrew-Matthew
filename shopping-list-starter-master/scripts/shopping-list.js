@@ -46,6 +46,9 @@ const shoppingList = (function() {
     if (store.hideCheckedItems) {
       items = items.filter(item => !item.checked);
     }
+    if (store.error) {
+      $(".error").html(`<h2 class="error-message">${store.error}</h2>`);
+    }
 
     // Filter item list if store prop `searchTerm` is not empty
     if (store.searchTerm) {
@@ -65,13 +68,10 @@ const shoppingList = (function() {
       event.preventDefault();
       const newItemName = $(".js-shopping-list-entry").val();
       $(".js-shopping-list-entry").val("");
-      api
-        .createItem(newItemName)
-        .then(res => res.json())
-        .then(item => {
-          store.addItem(item);
-          render();
-        });
+      api.createItem(newItemName).then(item => {
+        store.addItem(item);
+        render();
+      });
     });
   }
 
@@ -87,11 +87,11 @@ const shoppingList = (function() {
       const item = store.findById(id);
       api
         .updateItem(id, { checked: !item.checked })
-        .then(res => res.json())
         .then(obj => {
           store.findAndUpdate(id, { checked: !item.checked });
           render();
-        });
+        })
+        .catch(err => (store.error = err));
     });
   }
 
@@ -101,10 +101,13 @@ const shoppingList = (function() {
       // get the index of the item in store.items
       const id = getItemIdFromElement(event.currentTarget);
       // delete the item
-      api.handleDelete(id).then(res => {
-        store.findAndDelete(id);
-        render();
-      });
+      api
+        .handleDelete(id)
+        .then(json => {
+          store.findAndDelete(id);
+          render();
+        })
+        .catch(err => (store.error = err));
 
       // render the updated shopping list
     });
@@ -119,11 +122,11 @@ const shoppingList = (function() {
         .val();
       api
         .updateItem(id, { name: itemName })
-        .then(res => res.json())
         .then(obj => {
           store.findAndUpdate(id, { name: itemName });
           render();
-        });
+        })
+        .catch(err => (store.error = err));
       store.setItemIsEditing(id, false);
     });
   }
