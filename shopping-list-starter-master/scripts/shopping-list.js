@@ -108,7 +108,7 @@ const shoppingList = (function() {
       const itemName = $(event.currentTarget)
         .find(".shopping-item")
         .val();
-      store.findAndUpdateName(id, itemName);
+      store.findAndUpdate(id, { name: itemName });
       store.setItemIsEditing(id, false);
       render();
     });
